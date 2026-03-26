@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ultimate Eid Masterpiece</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --gold-primary: #D4AF37;
+            --gold-secondary: #FFD700;
+            --bg-dark: #020205;
+            --fb-blue: #1877F2;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            perspective: 2000px;
+        }
+
+        #canvas-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #020205 100%);
+        }
+
+        .master-frame {
+            width: 360px;
+            height: 760px;
+            position: relative;
+            z-index: 10;
+            border-radius: 50px;
+            padding: 5px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(0,0,0,0.8), rgba(212, 175, 55, 0.4));
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9), inset 0 0 20px rgba(212,175,55,0.2);
+            overflow: hidden;
+        }
+
+        .inner-screen {
+            width: 100%; height: 100%;
+            background: rgba(5, 5, 10, 0.6);
+            border-radius: 45px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+        }
+
+        .content-card {
+            position: absolute;
+            width: 85%;
+            padding: 20px 15px;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateZ(100px) rotateX(20deg);
+            transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .content-card.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateZ(0) rotateX(0);
+        }
+
+        .salam-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 25px;
+            background: linear-gradient(to right, #fff, var(--gold-secondary), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shineText 3s linear infinite;
+        }
+
+        @keyframes shineText { to { background-position: 200% center; } }
+
+        .mosque-svg {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 0 15px var(--gold-primary));
+            margin-bottom: 20px;
+            animation: float3D 4s infinite ease-in-out;
+        }
+
+        @keyframes float3D {
+            0%, 100% { transform: translateY(0) rotateY(0); }
+            50% { transform: translateY(-15px) rotateY(15deg); }
+        }
+
+        .btn-master {
+            background: linear-gradient(135deg, rgba(212,175,55,1) 0%, rgba(255,215,0,1) 50%, rgba(184,134,11,1) 100%);
+            color: #000;
+            padding: 14px 35px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+            transition: 0.3s;
+        }
+
+        .salami-box {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .salami-title { font-size: 13px; color: var(--gold-secondary); font-weight: bold; margin-bottom: 3px; }
+        .salami-number { font-size: 18px; color: #fff; font-weight: 700; letter-spacing: 2px; }
+        .copy-hint { font-size: 9px; color: #888; margin-top: 3px; }
+
+        #copy-toast {
+            position: absolute;
+            top: -25px; left: 50%; transform: translateX(-50%);
+            background: var(--gold-primary); color: #000; padding: 3px 12px;
+            border-radius: 8px; font-size: 11px; font-weight: bold; display: none;
+        }
+
+        .dua-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(212, 175, 55, 0.2); }
+        .arabic-calligraphy { font-family: 'Amiri', serif; font-size: 26px; color: var(--gold-secondary); }
+
+        /* ফুটার সেকশন */
+        .footer-section {
+            position: absolute;
+            bottom: 25px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .zubo-name {
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .fb-link-container {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .fb-icon {
+            color: #fff;
+            background: var(--fb-blue);
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 12px;
+            box-shadow: 0 0 10px rgba(24, 119, 242, 0.5);
+            animation: fbPulse 2s infinite;
+        }
+
+        @keyframes fbPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(24, 119, 242, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(24, 119, 242, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); }
+        }
+
+        .create-by {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold-primary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .fb-link-container:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-bg"></canvas>
+
+    <div class="master-frame">
+        <div class="inner-screen">
+            
+            <div id="step1" class="content-card active">
+                <div class="salam-text">আসসালামু আলাইকুম ওয়ারাহমাতুল্লাহি ওয়াবারাকাতুহু</div>
+                <div class="mosque-svg">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L21 9V21H3V9L12 2Z" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 21V12H15V21" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="7" r="2" stroke="#D4AF37" stroke-width="1.5"/>
+                    </svg>
+                </div>
+                <button class="btn-master" onclick="navTo(2)">পরবর্তী</button>
+            </div>
+
+            <div id="step2" class="content-card">
+                <div class="mosque-svg" style="font-size: 80px;">🌙</div>
+                <h2 style="color: #fff; margin-bottom: 20px;">ঈদের চাঁদ উঠেছে আকাশে</h2>
+                <p style="color: #ccc; margin-bottom: 30px; font-size: 17px;">আপনার জীবন ভরে উঠুক নতুন খুশির জোয়ারে।</p>
+                <button class="btn-master" onclick="navTo(3)">উপহারটি দেখুন</button>
+            </div>
+
+            <div id="step3" class="content-card">
+                <h1 style="font-size: 26px; color: #fff; margin-bottom: 10px;">শুভ ঈদ-উল-ফিতর</h1>
+                <p style="color: var(--gold-secondary); font-weight: 700; margin-bottom: 10px;">২০২৬ এর ঈদ হোক আপনার শ্রেষ্ঠ ঈদ!</p>
+                
+                <div class="dua-wrap">
+                    <div class="arabic-calligraphy">تَقَبَّلَ اللَّهُ مِنَّا وَ مِنْكُمْ</div>
+                    <p style="color: #fff; margin: 5px 0; font-size: 14px;">তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম</p>
+                </div>
+
+                <div class="salami-box" onclick="copyNumber()">
+                    <div id="copy-toast">Copied!</div>
+                    <div class="salami-title">🎁 ঈদ সালামী দিতে- (বিকাশ/নগদ/রকেট)</div>
+                    <div class="salami-number" id="target-number">01329493367</div>
+                    <div class="copy-hint">নাম্বারে চাপ দিলে কপি হবে</div>
+                </div>
+                <br>
+                <button class="btn-master" onclick="location.reload()">আবার দেখ</button>
+            </div>
+
+            <div class="footer-section">
+                <div class="zubo-name">MD MIZANUR K ["B"]</div>
+                <a href="https://www.facebook.com/share/1K9YCy4bw2/" target="_blank" class="fb-link-container">
+                    <div class="fb-icon"><i class="fab fa-facebook-f"></i></div>
+                    <div class="create-by"><h5>Create by ❤️MD MIZANUR K ("B")</h5></div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Background System
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() { this.x += this.speedX; this.y += this.speedY; }
+            draw() {
+                ctx.fillStyle = 'rgba(212, 175, 55, 0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        function createParticles() {
+            particles = [];
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        // Logic Functions
+        function copyNumber() {
+            const number = document.getElementById('target-number').innerText;
+            navigator.clipboard.writeText(number).then(() => {
+                const toast = document.getElementById('copy-toast');
+                toast.style.display = 'block';
+                if (navigator.vibrate) navigator.vibrate(100);
+                setTimeout(() => { toast.style.display = 'none'; }, 2000);
+            });
+        }
+
+        function navTo(step) {
+            if (navigator.vibrate) navigator.vibrate(50);
+            document.querySelectorAll('.content-card').forEach(c => c.classList.remove('active'));
+            setTimeout(() => {
+                document.getElementById('step' + step).classList.add('active');
+                if (step === 3) startEpicFirework();
+            }, 300);
+        }
+
+        function startEpicFirework() {
+            const end = Date.now() + (15 * 1000);
+            (function frame() {
+                confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors: ['#D4AF37', '#ffffff'] });
+                confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: ['#D4AF37', '#ffffff'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        initCanvas(); createParticles(); animate();
+        window.addEventListener('resize', () => { initCanvas(); createParticles(); });
+    </script>
+</body>
+</html>
